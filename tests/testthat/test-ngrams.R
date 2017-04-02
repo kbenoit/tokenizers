@@ -68,3 +68,10 @@ test_that("Skip n-gram tokenizer produces correct output", {
                 "call some never", "me years mind", "ishmael ago how")
   expect_identical(head(out_1, 6), expected)
 })
+
+test_that("Skip n-gram tokenizers respects stopwords", {
+  out_1 <- tokenize_skip_ngrams("This is a sentence that is for the test.",
+                                n = 3, k = 2, stopwords = c("a", "the"),
+                                simplify = TRUE)
+  expect_equal(length(grep("the", out_1)), 0)
+})

@@ -78,10 +78,10 @@ tokenize_ngrams <- function(x, lowercase = TRUE, n = 3L, n_min = n,
 #' @export
 #' @rdname ngram-tokenizers
 tokenize_skip_ngrams <- function(x, lowercase = TRUE, n = 3, k = 1,
-                                 simplify = FALSE) {
+                                 stopwords = NULL, simplify = FALSE) {
   check_input(x)
   named <- names(x)
-  words <- tokenize_words(x, lowercase = lowercase)
+  words <- tokenize_words(x, lowercase = lowercase, stopwords = stopwords)
   out <- lapply(words, skip_ngrams, n = n, k = k)
   if (!is.null(named)) names(out) <- named
   simplify_list(out, simplify)
