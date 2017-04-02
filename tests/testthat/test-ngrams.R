@@ -75,3 +75,31 @@ test_that("Skip n-gram tokenizers respects stopwords", {
                                 simplify = TRUE)
   expect_equal(length(grep("the", out_1)), 0)
 })
+
+test_that("Skips with values greater than k are refused", {
+  expect_false(check_width(c(0, 4, 5), k = 2))
+  expect_true(check_width(c(0, 3, 5), k = 2))
+  expect_false(check_width(c(0, 1, 3), k = 0))
+  expect_true(check_width(c(0, 1, 2), k = 0))
+  expect_false(check_width(c(0, 10, 11, 12), k = 5))
+  expect_true(check_width(c(0, 6, 11, 16, 18), k = 5))
+})
+
+test_that("Combinations for skip grams are correct", {
+  skip_pos <- get_valid_skips(2, 2)
+  expect_is(skip_pos, "list")
+  expect_length(skip_pos, 3)
+  expect_identical(skip_pos, list(c(0, 1), c(0, 2), c(0, 3)))
+
+  skip_pos2 <- get_valid_skips(3, 2)
+  expect_identical(skip_pos2, list(
+    c(0, 1, 2),
+    c(0, 1, 3),
+    c(0, 1, 4),
+    c(0, 2, 3),
+    c(0, 2, 4),
+    c(0, 2, 5),
+    c(0, 3, 4),
+    c(0, 3, 5),
+    c(0, 3, 6)))
+})

@@ -82,7 +82,36 @@ tokenize_skip_ngrams <- function(x, lowercase = TRUE, n = 3, k = 1,
   check_input(x)
   named <- names(x)
   words <- tokenize_words(x, lowercase = lowercase, stopwords = stopwords)
+  skips <- get_valid_skips(n, k)
   out <- lapply(words, skip_ngrams, n = n, k = k)
   if (!is.null(named)) names(out) <- named
   simplify_list(out, simplify)
+}
+
+# Given n and k, generate the positions of valid indexes of words comprising
+# the skip n-gram. In other words, there will be n integers in each element of
+# the list, and the distance between those integers will be a maximum of k.
+get_valid_skips <- function(n, k) {
+  max_dist <- k * (n - 1) + (n - 1)
+  total_combinations <- choose(max_dist, n - 1)
+  if (total_combinations > 10e3)
+    warning("Input n and k will produce a very large number of skip n-grams")
+
+  # Generate all possible combinations up to the maximum distance
+  positions <- utils::combn(max_dist, n - 1, simplify = FALSE)
+
+  # Prepend 0 to represent position of starting word. Use 0 indexed vectors
+  # because these vectors go to Rcpp.
+  positions <- lapply(positions, function(v) { c(0, v) })
+
+  # Keep only the combination of positions with the correct skip between words
+  keepers <- vapply(positions, check_width, logical(1), k)
+  positions[keepers]
+}
+
+# Check the skip distance between words, and return FALSE if the skip is bigger
+# than k
+check_width <- function(v, k) {
+  v_lead <- c(v[2:length(v)], NA_integer_)
+  all(v_lead - v - 1 <= k, na.rm = TRUE)
 }
