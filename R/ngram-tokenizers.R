@@ -77,11 +77,16 @@ tokenize_ngrams <- function(x, lowercase = TRUE, n = 3L, n_min = n,
 
 #' @export
 #' @rdname ngram-tokenizers
-tokenize_skip_ngrams <- function(x, lowercase = TRUE, n = 3, k = 1,
+tokenize_skip_ngrams <- function(x, lowercase = TRUE, n = 3L, n_min = 1L, k = 1L,
                                  stopwords = NULL, simplify = FALSE) {
   check_input(x)
   named <- names(x)
+  if (n < n_min || n_min <= 0)
+    stop("n and n_min must be integers, and n_min must be less than ",
+         "n and greater than 1.")
   words <- tokenize_words(x, lowercase = lowercase, stopwords = stopwords)
+  skips <- unlist(lapply(n_min:n, get_valid_skips, k),
+                  recursive = FALSE, use.names = FALSE)
   skips <- get_valid_skips(n, k)
   out <- lapply(words, skip_ngrams, n = n, k = k)
   if (!is.null(named)) names(out) <- named
@@ -94,7 +99,7 @@ tokenize_skip_ngrams <- function(x, lowercase = TRUE, n = 3, k = 1,
 get_valid_skips <- function(n, k) {
   max_dist <- k * (n - 1) + (n - 1)
   total_combinations <- choose(max_dist, n - 1)
-  if (total_combinations > 10e3)
+  if (total_combinations > 5e3)
     warning("Input n and k will produce a very large number of skip n-grams")
 
   # Generate all possible combinations up to the maximum distance
