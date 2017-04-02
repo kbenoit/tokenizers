@@ -62,11 +62,10 @@ test_that("Skip n-gram tokenizer works as expected", {
 })
 
 test_that("Skip n-gram tokenizer produces correct output", {
-  # skip_on_os("windows")
-  out_1 <- tokenize_skip_ngrams(docs_c[1], n = 3, k = 2, simplify = TRUE)
-  expected <- c("chapter call some", "1 me years", "loomings ishmael ago",
-                "call some never", "me years mind", "ishmael ago how")
-  expect_identical(head(out_1, 6), expected)
+  out_n2_k2 <- tokenize_skip_ngrams(input, n = 2, n_min = 2, k = 2, simplify = TRUE)
+  expect_equal(sort(skip2_bigrams), sort(out_n2_k2))
+  out_n3_k2 <- tokenize_skip_ngrams(input, n = 3, n_min = 3, k = 2, simplify = TRUE)
+  expect_equal(sort(skip2_trigrams), sort(out_n3_k2))
 })
 
 test_that("Skip n-gram tokenizers respects stopwords", {
